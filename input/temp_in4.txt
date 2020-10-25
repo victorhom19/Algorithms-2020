@@ -1,0 +1,2 @@
+Invalid temperature format
+Exception expected

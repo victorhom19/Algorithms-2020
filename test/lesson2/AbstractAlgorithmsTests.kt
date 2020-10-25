@@ -46,6 +46,7 @@ abstract class AbstractAlgorithmsTests {
         assertEquals(3 to 4, optimizeBuyAndSell("input/buysell_in1.txt"))
         assertEquals(8 to 12, optimizeBuyAndSell("input/buysell_in2.txt"))
         assertEquals(3 to 4, optimizeBuyAndSell("input/buysell_in3.txt"))
+        assertEquals(4 to 7, optimizeBuyAndSell("input/buysell_in4.txt"))
         try {
             val expectedAnswer = generatePrices(1000)
             assertEquals(expectedAnswer, optimizeBuyAndSell("temp_prices.txt"))
@@ -63,14 +64,15 @@ abstract class AbstractAlgorithmsTests {
     fun josephTask(josephTask: (Int, Int) -> Int) {
         assertEquals(1, josephTask(1, 1))
         assertEquals(2, josephTask(2, 1))
-        assertEquals(50000000, josephTask(50000000, 1))
         assertEquals(3, josephTask(8, 5))
         assertEquals(28, josephTask(40, 3))
+        assertEquals(50000000, josephTask(50000000, 1))
         var menNumber = 2
         for (i in 1..20) {
             assertEquals(1, josephTask(menNumber, 2))
             menNumber *= 2
         }
+        assertEquals(16, josephTask(19, 7))
     }
 
     fun longestCommonSubstring(longestCommonSubstring: (String, String) -> String) {
@@ -120,6 +122,9 @@ abstract class AbstractAlgorithmsTests {
                 File("input/ruslan_ludmila_2.txt").readText()
             ).trim()
         )
+
+            assertEquals("ОЛИТЕ", longestCommonSubstring("ПОЛИТЕХНИЧЕСКИЙ УНИВЕРСИТЕТ", "СПЛАВОЛИТЕЙНЫЙ ЗАВОД"))
+            assertEquals("", longestCommonSubstring("Covid-19", "Коронавирус"))
     }
 
     fun calcPrimesNumber(calcPrimesNumber: (Int) -> Int) {
@@ -129,6 +134,9 @@ abstract class AbstractAlgorithmsTests {
         assertEquals(2, calcPrimesNumber(4))
         assertEquals(4, calcPrimesNumber(10))
         assertEquals(8, calcPrimesNumber(20))
+        assertEquals(25, calcPrimesNumber(100))
+        assertEquals(66, calcPrimesNumber(322))
+        assertEquals(217, calcPrimesNumber(1337))
         assertEquals(1000, calcPrimesNumber(7920))
         assertEquals(1229, calcPrimesNumber(10000))
         assertEquals(2262, calcPrimesNumber(20000))

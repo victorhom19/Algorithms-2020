@@ -1,13 +1,16 @@
 package lesson1
 
 import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import util.PerfResult
 import util.estimate
 import java.io.BufferedWriter
 import java.io.File
+import java.lang.IllegalArgumentException
 import java.util.*
 import kotlin.math.abs
 import kotlin.system.measureNanoTime
+import kotlin.test.assertFailsWith
 
 abstract class AbstractTaskTests : AbstractFileTests() {
 
@@ -45,6 +48,16 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         } finally {
             File("temp.txt").delete()
         }
+
+        try {
+            sortTimes("input/time_in4.txt", "temp.txt")
+            assertFileContent("temp.txt", File("input/time_out4.txt").readLines())
+        } finally {
+            File("temp.txt").delete()
+        }
+
+        assertFailsWith<IllegalArgumentException> { sortTimes("input/time_in5.txt", "temp.txt") }
+
     }
 
     protected fun sortAddresses(sortAddresses: (String, String) -> Unit) {
@@ -73,6 +86,23 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         } finally {
             File("temp.txt").delete()
         }
+
+        try {
+            sortAddresses("input/addr_in4.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                    Киртбая 12 - Сисюлькин Владимир
+                    Ленина 8 - Хисматов Эльмир
+                    Маяковского 47 - Золотопуп Андрей, Кайгородцев Егор
+                    Мира 24 - Сорокина Софья
+                """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+
+        assertFailsWith<IllegalArgumentException> { sortAddresses("input/time_in5.txt", "temp.txt") }
     }
 
     private fun generateTemperatures(size: Int): PerfResult<Unit> {
@@ -118,6 +148,29 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         } finally {
             File("temp.txt").delete()
         }
+
+        try {
+            sortTemperatures("input/temp_in2.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                    -35.1
+                    -12.0
+                    -11.9
+                    -11.2
+                    0.0
+                    25.4
+                    59.4
+                    128.5
+                """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+
+        assertFailsWith<IllegalArgumentException> { sortTemperatures("input/temp_in3.txt", "temp.txt") }
+
+        assertFailsWith<IllegalArgumentException> { sortTemperatures("input/temp_in4.txt", "temp.txt") }
 
         fun testGeneratedTemperatures(size: Int): PerfResult<Unit> {
             try {
@@ -278,6 +331,28 @@ abstract class AbstractTaskTests : AbstractFileTests() {
             File("temp.txt").delete()
         }
 
+        try {
+            sortSequence("input/seq_in6.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                        23
+                        99
+                        15
+                        15
+                        41
+                        99
+                        23
+                        23
+                        22
+                        22
+                        22
+                    """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+
         fun testGeneratedSequence(totalSize: Int, answerSize: Int): PerfResult<Unit> {
             try {
                 val res = generateSequence(totalSize, answerSize)
@@ -323,9 +398,13 @@ abstract class AbstractTaskTests : AbstractFileTests() {
     }
 
     protected fun mergeArrays(mergeArrays: (Array<Int>, Array<Int?>) -> Unit) {
-        val result = arrayOf(null, null, null, null, null, 1, 3, 9, 13, 18, 23)
-        mergeArrays(arrayOf(4, 9, 15, 20, 23), result)
-        assertArrayEquals(arrayOf(1, 3, 4, 9, 9, 13, 15, 18, 20, 23, 23), result)
+        val result1 = arrayOf(null, null, null, null, null, 1, 3, 9, 13, 18, 23)
+        mergeArrays(arrayOf(4, 9, 15, 20, 23), result1)
+        assertArrayEquals(arrayOf(1, 3, 4, 9, 9, 13, 15, 18, 20, 23, 23), result1)
+
+        val result2 = arrayOf(null, null, null, null, null, null, null, 1, 5, 9, 9, 12, 32, 45, 48)
+        mergeArrays(arrayOf(4, 9, 13, 15, 20, 23, 25), result2)
+        assertArrayEquals(arrayOf(1, 4, 5, 9, 9, 9, 12, 13, 15, 20, 23, 25, 32 ,45, 48), result2)
 
         fun testGeneratedArrays(
             firstSize: Int,
@@ -341,6 +420,7 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         val perf = estimate(listOf(1_000, 10_000, 100_000, 1_000_000)) {
             testGeneratedArrays(it, it)
         }
+
 
         println("mergeArrays: $perf")
     }
