@@ -59,7 +59,7 @@ public class JavaTasks {
             int minutes = Integer.parseInt(split[1]);
             int seconds = Integer.parseInt(split[2]);
             return (((hours + addition) * 60) + minutes) * 60 + seconds;
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid time format");
         }
     }
@@ -90,7 +90,7 @@ public class JavaTasks {
      * <p>
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    static public void sortAddresses(String inputName, String outputName) {
+    static public void sortAddresses(String inputName, String outputName) throws IOException {
         //Трудоемкость O(NlogN)
         //Ресурсоемкость O(N)
 
@@ -136,7 +136,7 @@ public class JavaTasks {
             wr.flush();
             wr.close();
 
-        } catch (Exception e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Street name has wrong format");
         }
     }
@@ -173,7 +173,7 @@ public class JavaTasks {
      * 121.3
      */
 
-    static public void sortTemperatures(String inputName, String outputName) {
+    static public void sortTemperatures(String inputName, String outputName) throws IOException {
         //Трудоемкость O(N)
         //Ресурсоемкость O(1)
 
@@ -198,8 +198,10 @@ public class JavaTasks {
             }
             wr.flush();
             wr.close();
-        } catch (Exception e) {
-            throw (new IllegalArgumentException("Temperature value is out of bounds or has invalid format"));
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw (new IllegalArgumentException("Temperature value is out of bounds"));
+        } catch (NumberFormatException e) {
+            throw (new IllegalArgumentException("Temperature value has invalid format"));
         }
 
     }
@@ -285,7 +287,7 @@ public class JavaTasks {
 
     static <T extends Comparable<T>> void mergeArrays(T[] first, T[] second) {
         //Трудоемкость O(N)
-        //Ресурсоемкость O(1)
+        //Ресурсоемкость O(N)
 
         int i = 0;
         int index = 0;

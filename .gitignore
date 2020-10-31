@@ -5,6 +5,7 @@
 ./gradle
 .idea/*.xml
 .idea/copyright
+.idea/codeStyles
 .idea/libraries
 .idea/shelf
 .idea/.name

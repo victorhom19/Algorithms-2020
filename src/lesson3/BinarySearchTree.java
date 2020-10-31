@@ -1,6 +1,5 @@
 package lesson3;
 
-import java.awt.List;
 import java.util.*;
 
 import kotlin.NotImplementedError;
@@ -23,6 +22,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
 
     private Node<T> root;
     private Node<T> hyperRoot = new Node<T>(null);
+    private Node<T> maxNode;
     private int size;
 
     @Override
@@ -48,12 +48,12 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         }
     }
 
-    private Node<T> findMaxNode() {
+    private void updateMaxNode() {
         Node<T> mxNode = this.root;
         while (mxNode.right != null) {
             mxNode = mxNode.right;
         }
-        return mxNode;
+        maxNode = mxNode;
     }
 
     @Override
@@ -96,6 +96,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             newNode.parent = closest;
         }
         size++;
+        updateMaxNode();
         return true;
     }
 
@@ -146,15 +147,15 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
 
     @Override
     public boolean remove(Object o) {
-        if (this.contains(o)) {
-            Node<T> nodeToRemove = this.find((T) o);
+        //Трудоемкость O(N)
+
+        Node<T> nodeToRemove = this.find((T) o);
+        if (nodeToRemove != null && nodeToRemove.value.compareTo((T) o) == 0) {
             if (nodeToRemove.left == null && nodeToRemove.right == null) {
                 separateNode(nodeToRemove);
-            }
-            else if (nodeToRemove.left == null) {
+            } else if (nodeToRemove.left == null) {
                 replaceNode(nodeToRemove, nodeToRemove.right, 1);
-            }
-            else if (nodeToRemove.right == null) {
+            } else if (nodeToRemove.right == null) {
                 replaceNode(nodeToRemove, nodeToRemove.left, 1);
             } else {
                 Iterator<T> iterator = this.iterator();
@@ -168,6 +169,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
                 replaceNode(nodeToRemove, marker, 2);
             }
             size--;
+            updateMaxNode();
             return true;
         } else return false;
     }
@@ -178,10 +180,6 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         return null;
     }
 
-
-
-
-
     @NotNull
     @Override
     public Iterator<T> iterator() {
@@ -191,7 +189,6 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     public class BinarySearchTreeIterator implements Iterator<T> {
         Node<T> marker = null;
         private BinarySearchTreeIterator() {}
-
 
         /**
          * Проверка наличия следующего элемента
@@ -206,11 +203,13 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
 
         @Override
         public boolean hasNext() {
+            //Трудоемкость O(1)
+
             if (marker == null) {
-                if (BinarySearchTree.this.size > 0) {
-                    return true;
-                } else return false;
-            } else return (marker.value.compareTo(findMaxNode().value) < 0);
+                return BinarySearchTree.this.size > 0;
+            } else {
+                return (marker.value.compareTo(maxNode.value) < 0);
+            }
         }
 
         /**
@@ -227,35 +226,49 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * Средняя
          */
 
-        private T lastIterated = null;
+
+        boolean afterRemove = false;
+        T temp;
 
         @Override
         public T next() {
-            if (hasNext()) {
-                if (marker == null) {
-                    marker = root;
-                    while (marker.left != null) {
-                        marker = marker.left;
-                    }
-                } else {
-                    if (marker.right != null) {
-                        marker = marker.right;
+            //Трудоемкость O(N)
+
+            if (afterRemove) {
+                afterRemove = false;
+                marker = root;
+                while (marker.left != null) {
+                    marker = marker.left;
+                }
+                while (marker.value.compareTo(temp) < 0) {
+                    this.next();
+                }
+                return marker.value;
+            } else {
+                if (hasNext()) {
+                    if (marker == null) {
+                        marker = root;
                         while (marker.left != null) {
                             marker = marker.left;
                         }
                     } else {
-                        while (marker.parent.right != null && marker.parent.right.equals(marker)) {
+                        if (marker.right != null) {
+                            marker = marker.right;
+                            while (marker.left != null) {
+                                marker = marker.left;
+                            }
+                        } else {
+                            while (marker.parent.right != null && marker.parent.right.equals(marker)) {
+                                marker = marker.parent;
+                            }
                             marker = marker.parent;
                         }
-                        marker = marker.parent;
                     }
+                    return marker.value;
+                } else {
+                    throw (new IllegalStateException());
                 }
-                lastIterated = marker.value;
-                return marker.value;
-            } else {
-                throw (new IllegalStateException());
             }
-
         }
 
         /**
@@ -270,13 +283,18 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * <p>
          * Сложная
          */
+
         @Override
         public void remove() {
-            if (lastIterated != null) {
-                BinarySearchTree.this.remove(lastIterated);
-                lastIterated = null;
-            } else throw new IllegalStateException();
+            //Трудоемкость O(N)
 
+            if (marker != null && BinarySearchTree.this.contains(marker.value)) {
+                temp = marker.value;
+                BinarySearchTree.this.remove(marker.value);
+                afterRemove = true;
+            } else {
+                throw (new IllegalStateException());
+            }
         }
     }
 
@@ -299,8 +317,27 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     @NotNull
     @Override
     public SortedSet<T> subSet(T fromElement, T toElement) {
-        // TODO
-        throw new NotImplementedError();
+        //Трудоемкость O(N)
+
+        Iterator<T> iterator = this.iterator();
+        if (iterator.hasNext()) {
+            SortedSet<T> nodeSet = new TreeSet<>();
+            T temp = iterator.next();
+            while (temp.compareTo(toElement) < 0 && iterator != null) {
+                if (temp.compareTo(fromElement) >= 0) {
+                    nodeSet.add(temp);
+                }
+                if (iterator.hasNext()) {
+                    temp = iterator.next();
+                } else {
+                    iterator = null;
+                }
+            }
+            return nodeSet;
+        } else {
+            throw new NoSuchElementException();
+        }
+
     }
 
     /**

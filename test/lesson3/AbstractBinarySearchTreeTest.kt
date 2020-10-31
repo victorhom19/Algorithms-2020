@@ -109,8 +109,8 @@ abstract class AbstractBinarySearchTreeTest {
     protected fun doRemoveTest() {
         implementationTest { create().remove(0) }
         val random = Random()
-        for (iteration in 1..100) {
-            val controlSet = mutableSetOf<Int>()
+        for (iteration in 1..101) {
+            var controlSet = mutableSetOf<Int>()
             val removeIndex = random.nextInt(20) + 1
             var toRemove = 0
             for (i in 1..20) {
@@ -121,6 +121,10 @@ abstract class AbstractBinarySearchTreeTest {
                 }
             }
 
+            if (iteration == 101) {
+                controlSet = mutableSetOf(1, 36, 2, 21, 19, 10, 88, 45, 34, 29)
+                toRemove = 19
+            }
 
             println("Initial set: $controlSet")
             val binarySet = create()
@@ -212,8 +216,8 @@ abstract class AbstractBinarySearchTreeTest {
     protected fun doIteratorRemoveTest() {
         implementationTest { create().iterator().remove() }
         val random = Random()
-        for (iteration in 1..100) {
-            val controlSet = TreeSet<Int>()
+        for (iteration in 1..101) {
+            var controlSet = TreeSet<Int>()
             val removeIndex = random.nextInt(20) + 1
             var toRemove = 0
             for (i in 1..20) {
@@ -224,6 +228,10 @@ abstract class AbstractBinarySearchTreeTest {
                 }
             }
 
+            if (iteration == 101) {
+                controlSet = setOf(1, 36, 2, 21, 19, 10, 88, 45, 34, 29) as TreeSet<Int>
+                toRemove = 19
+            }
 
             println("Initial set: $controlSet")
             val binarySet = create()
@@ -285,19 +293,24 @@ abstract class AbstractBinarySearchTreeTest {
             "The subset with the same lower and upper bounds is not empty."
         )
         val random = Random()
-        for (iteration in 1..100) {
+        for (iteration in 1..101) {
             val controlSet = mutableSetOf<Int>()
-            val initialSet = create()
+            var initialSet = create()
             for (i in 1..30) {
                 controlSet.add(random.nextInt(100))
             }
             for (element in controlSet) {
                 initialSet.add(element)
             }
-            println("Control set: $controlSet")
-            val fromElement = random.nextInt(50)
-            val toElement = random.nextInt(50) + 50
+            var fromElement = random.nextInt(50)
+            var toElement = random.nextInt(50) + 50
+            if (iteration == 101) {
+                initialSet = setOf(7, 13, 21, 25, 26, 27, 34, 36, 37, 44, 47, 50, 52, 56, 62, 73, 75, 80, 85, 90) as CheckableSortedSet<Int>
+                fromElement = 21
+                toElement = 85
+            }
             val subSet = initialSet.subSet(fromElement, toElement)
+            println("Control set: $controlSet")
             println("Checking if the boundaries of the subset from $fromElement to $toElement are respected...")
             for (element in controlSet) {
                 assertEquals(
