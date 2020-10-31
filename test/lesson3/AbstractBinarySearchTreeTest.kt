@@ -228,11 +228,6 @@ abstract class AbstractBinarySearchTreeTest {
                 }
             }
 
-            if (iteration == 101) {
-                controlSet = setOf(1, 36, 2, 21, 19, 10, 88, 45, 34, 29) as TreeSet<Int>
-                toRemove = 19
-            }
-
             println("Initial set: $controlSet")
             val binarySet = create()
             for (element in controlSet) {
