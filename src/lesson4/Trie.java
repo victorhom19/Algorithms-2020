@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Trie extends AbstractSet<String> implements Set<String> {
 
+
     private static class Node {
         Map<Character, Node> children = new LinkedHashMap<>();
     }
@@ -91,9 +92,58 @@ public class Trie extends AbstractSet<String> implements Set<String> {
      */
     @NotNull
     @Override
-    public Iterator<String> iterator() {
-        // TODO
-        throw new NotImplementedError();
-    }
+    public Iterator<String> iterator() { return new TrieIterator();}
 
+
+    public class TrieIterator implements Iterator<String> {
+        Deque<String> orderedSubstrings = new ArrayDeque<>();
+        String currentSubstring = "";
+
+        TrieIterator() {
+            if (root != null && !(root.children.isEmpty())) {
+                initialize(root);
+            }
+        }
+
+        private void initialize(Node node) {
+                for (char key : node.children.keySet()) {
+                    if (key == '\u0000') {
+                        orderedSubstrings.addFirst(currentSubstring);
+                        currentSubstring += key;
+                    } else {
+                        currentSubstring += key;
+                        initialize(node.children.get(key));
+                    }
+                    currentSubstring = currentSubstring.substring(0, currentSubstring.length() - 1);
+                }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return orderedSubstrings.size() > 0;
+        }
+
+        private String lastReturned;
+
+        @Override
+        public String next() {
+            if (orderedSubstrings.size() > 0) {
+                lastReturned = orderedSubstrings.peekLast();
+                return orderedSubstrings.pollLast();
+            } else {
+                throw new IllegalStateException();
+            }
+
+        }
+
+        @Override
+        public void remove() {
+            if (lastReturned != null) {
+                Trie.this.remove(lastReturned);
+                lastReturned = null;
+            } else {
+                throw new IllegalStateException();
+            }
+        }
+    }
 }
