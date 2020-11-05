@@ -1,8 +1,9 @@
 package lesson7;
 
 import kotlin.NotImplementedError;
+import kotlin.Pair;
 
-import java.util.List;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class JavaDynamicTasks {
@@ -18,8 +19,49 @@ public class JavaDynamicTasks {
      * Если есть несколько самых длинных общих подпоследовательностей, вернуть любую из них.
      * При сравнении подстрок, регистр символов *имеет* значение.
      */
+
+
     public static String longestCommonSubSequence(String first, String second) {
-        throw new NotImplementedError();
+        String result = "";
+        int[][] lengths = new int[first.length() + 1][second.length() + 1];
+        
+        //Заполняем таблицу
+        for (int j = 0; j <= second.length(); j ++) {
+            for (int i= 0; i <= first.length(); i ++) {
+                if (i == 0 || j == 0) {
+                    lengths[i][j] = 0;
+                } else if (first.charAt(i - 1) == second.charAt(j - 1)) {
+                    lengths[i][j] = lengths[i - 1][j - 1] + 1;
+                } else {
+                    lengths[i][j] = Math.max(lengths[i - 1][j], lengths[i][j - 1]);
+                }
+            }
+        }
+
+        //Идем с конца, записывая символы, вызвавшие инкремент элемента
+        int i = first.length();
+        int j = second.length();
+        int cursor = lengths[i][j];
+        while (cursor != 0) {
+            while (cursor == lengths[i - 1][j - 1]) {
+                i --;
+                j --;
+                cursor = lengths[i][j];
+            }
+            while (cursor == lengths[i][j - 1]) {
+                j --;
+                cursor = lengths[i][j];
+            }
+            while (cursor == lengths[i - 1][j]) {
+                i --;
+                cursor = lengths[i][j];
+            }
+            result += first.charAt(i - 1);
+            i --;
+            j --;
+            cursor = lengths[i][j];
+        }
+        return new StringBuffer(result).reverse().toString();
     }
 
     /**

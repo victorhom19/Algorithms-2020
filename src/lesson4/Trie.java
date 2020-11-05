@@ -97,7 +97,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
 
     public class TrieIterator implements Iterator<String> {
-        Deque<String> orderedSubstrings = new ArrayDeque<>();
+        Queue<String> orderedSubstrings = new ArrayDeque<>();
         String currentSubstring = "";
 
         TrieIterator() {
@@ -109,7 +109,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         private void initialize(Node node) {
                 for (char key : node.children.keySet()) {
                     if (key == '\u0000') {
-                        orderedSubstrings.addFirst(currentSubstring);
+                        orderedSubstrings.add(currentSubstring);
                         currentSubstring += key;
                     } else {
                         currentSubstring += key;
@@ -129,8 +129,8 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         @Override
         public String next() {
             if (orderedSubstrings.size() > 0) {
-                lastReturned = orderedSubstrings.peekLast();
-                return orderedSubstrings.pollLast();
+                lastReturned = orderedSubstrings.peek();
+                return orderedSubstrings.poll();
             } else {
                 throw new IllegalStateException();
             }
