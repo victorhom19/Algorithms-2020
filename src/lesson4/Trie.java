@@ -1,7 +1,11 @@
 package lesson4;
 
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import kotlin.NotImplementedError;
+import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,10 +14,13 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Trie extends AbstractSet<String> implements Set<String> {
 
-
-
     private static class Node {
         Map<Character, Node> children = new LinkedHashMap<>();
+        Node parent;
+
+        public boolean isEnd() {
+            return this.children.containsKey('\u0000') && this.children.size() == 1;
+        }
     }
 
     private Node root = new Node();
@@ -62,6 +69,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             } else {
                 modified = true;
                 Node newChild = new Node();
+                newChild.parent = current;
                 current.children.put(character, newChild);
                 current = newChild;
             }
@@ -84,67 +92,83 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         return false;
     }
 
+
     /**
      * Итератор для префиксного дерева
-     *
+     * <p>
      * Спецификация: {@link Iterator} (Ctrl+Click по Iterator)
-     *
+     * <p>
      * Сложная
      */
     @NotNull
     @Override
-    public Iterator<String> iterator() { return new TrieIterator();}
-
+    public Iterator<String> iterator() {
+        return new TrieIterator();
+    }
 
     public class TrieIterator implements Iterator<String> {
-        Queue<String> orderedSubstrings = new ArrayDeque<>();
-        String currentSubstring = "";
+        Set<Node> iterated = new HashSet<>();
+        Set<Character> keyToIterate;
+        Node cursor = Trie.this.root;
+        String collectedString = "";
+        int c = 0;
 
         TrieIterator() {
-            if (root != null && !(root.children.isEmpty())) {
-                initialize(root);
-            }
         }
 
-        private void initialize(Node node) {
-                for (char key : node.children.keySet()) {
-                    if (key == '\u0000') {
-                        orderedSubstrings.add(currentSubstring);
-                        currentSubstring += key;
-                    } else {
-                        currentSubstring += key;
-                        initialize(node.children.get(key));
-                    }
-                    currentSubstring = currentSubstring.substring(0, currentSubstring.length() - 1);
-                }
-        }
 
         @Override
         public boolean hasNext() {
-            return orderedSubstrings.size() > 0;
-        }
+            if (Trie.this.size() == 0) {
+                return false;
+            } else {
+                return c < Trie.this.size();
+            }
 
-        private String lastReturned;
+        }
 
         @Override
         public String next() {
-            if (orderedSubstrings.size() > 0) {
-                lastReturned = orderedSubstrings.peek();
-                return orderedSubstrings.poll();
-            } else {
-                throw new IllegalStateException();
+            if (!hasNext()) throw new IllegalStateException();
+            while (true) {
+                keyToIterate = cursor.children.keySet().stream().filter(o -> !(iterated.contains(cursor.children.get(o))) && o != '\u0000').collect(Collectors.toSet());
+                if (keyToIterate.isEmpty()) {
+                    if (Trie.this.size() == 0) {
+                        return "";
+                    } else {
+                        if (cursor.children.containsKey('\u0000')) {
+                            String result = collectedString;
+                            iterated.add(cursor);
+                            collectedString = collectedString.substring(0, collectedString.length() - 1);
+                            cursor = cursor.parent;
+                            c++;
+                            return result;
+                        }
+                        iterated.add(cursor);
+                        collectedString = collectedString.substring(0, collectedString.length() - 1);
+                        cursor = cursor.parent;
+                    }
+                } else {
+                    for (Character chr : keyToIterate) {
+                        Node node = cursor.children.get(chr);
+                        if (node.isEnd()) {
+                            iterated.add(node);
+                            c++;
+                            return collectedString + chr;
+                        }
+                    }
+                    Character next = keyToIterate.stream().filter(o -> o != '\u0000').collect(Collectors.toSet()).iterator().next();
+                    cursor = cursor.children.get(next);
+                    collectedString += next;
+                }
             }
+
 
         }
 
         @Override
         public void remove() {
-            if (lastReturned != null) {
-                Trie.this.remove(lastReturned);
-                lastReturned = null;
-            } else {
-                throw new IllegalStateException();
-            }
+            throw new NotImplementedError();
         }
     }
 }
