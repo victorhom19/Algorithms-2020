@@ -19,7 +19,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         Node parent;
 
         public boolean isEnd() {
-            return this.children.containsKey('\u0000') && this.children.size() == 1;
+            return this.children.containsKey('\u0000');
         }
     }
 
@@ -108,10 +108,9 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
     public class TrieIterator implements Iterator<String> {
         Set<Node> iterated = new HashSet<>();
-        Set<Character> keyToIterate;
         Node cursor = Trie.this.root;
         String collectedString = "";
-        int c = 0;
+        int returnedCounter = 0;
 
         TrieIterator() {
         }
@@ -122,7 +121,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             if (Trie.this.size() == 0) {
                 return false;
             } else {
-                return c < Trie.this.size();
+                return returnedCounter < Trie.this.size();
             }
 
         }
@@ -131,39 +130,39 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         public String next() {
             if (!hasNext()) throw new IllegalStateException();
             while (true) {
-                keyToIterate = cursor.children.keySet().stream().filter(o -> !(iterated.contains(cursor.children.get(o))) && o != '\u0000').collect(Collectors.toSet());
+                Set<Character> keyToIterate = cursor.children.keySet().stream()
+                        .filter(o -> !(iterated.contains(cursor.children.get(o))) && o != '\u0000')
+                        .collect(Collectors.toSet());
                 if (keyToIterate.isEmpty()) {
-                    if (Trie.this.size() == 0) {
-                        return "";
-                    } else {
-                        if (cursor.children.containsKey('\u0000')) {
-                            String result = collectedString;
-                            iterated.add(cursor);
-                            collectedString = collectedString.substring(0, collectedString.length() - 1);
-                            cursor = cursor.parent;
-                            c++;
-                            return result;
-                        }
-                        iterated.add(cursor);
-                        collectedString = collectedString.substring(0, collectedString.length() - 1);
-                        cursor = cursor.parent;
+                    String delayedReturn = "";
+                    if (cursor.isEnd()) {
+                        delayedReturn = collectedString;
+                    }
+                    for (Character child : cursor.children.keySet()) {
+                        iterated.remove(cursor.children.get(child));
+                    }
+                    iterated.add(cursor);
+                    collectedString = collectedString.substring(0, collectedString.length() - 1);
+                    cursor = cursor.parent;
+                    if (!delayedReturn.isEmpty()) {
+                        returnedCounter++;
+                        return delayedReturn;
                     }
                 } else {
                     for (Character chr : keyToIterate) {
                         Node node = cursor.children.get(chr);
-                        if (node.isEnd()) {
+                        if (node.isEnd() && node.children.size() == 1) {
                             iterated.add(node);
-                            c++;
+                            returnedCounter++;
                             return collectedString + chr;
                         }
                     }
-                    Character next = keyToIterate.stream().filter(o -> o != '\u0000').collect(Collectors.toSet()).iterator().next();
+                    Character next = keyToIterate.stream()
+                            .filter(o -> o != '\u0000').collect(Collectors.toSet()).iterator().next();
                     cursor = cursor.children.get(next);
                     collectedString += next;
                 }
             }
-
-
         }
 
         @Override
