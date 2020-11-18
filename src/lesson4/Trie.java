@@ -109,6 +109,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     public class TrieIterator implements Iterator<String> {
         Set<Node> iterated = new HashSet<>();
         Node cursor = Trie.this.root;
+        String lastReturned = "";
         String collectedString = "";
         int returnedCounter = 0;
 
@@ -143,9 +144,11 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                     }
                     iterated.add(cursor);
                     collectedString = collectedString.substring(0, collectedString.length() - 1);
+
                     cursor = cursor.parent;
                     if (!delayedReturn.isEmpty()) {
                         returnedCounter++;
+                        lastReturned = delayedReturn;
                         return delayedReturn;
                     }
                 } else {
@@ -154,6 +157,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                         if (node.isEnd() && node.children.size() == 1) {
                             iterated.add(node);
                             returnedCounter++;
+                            lastReturned = collectedString + chr;
                             return collectedString + chr;
                         }
                     }
@@ -167,7 +171,35 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
         @Override
         public void remove() {
-            throw new NotImplementedError();
+            if (iterated.size() == 0) {
+                throw new IllegalStateException();
+            } else {
+                Node removeCursor = cursor;
+                String remainder = lastReturned.substring(collectedString.length());
+                String removingState = lastReturned;
+                for (int i = 0; i < remainder.length(); i ++ ) {
+                    if (removeCursor.children.containsKey(remainder.charAt(i))) {
+                        removeCursor = removeCursor.children.get(remainder.charAt(i));
+                    } else {
+                        throw new IllegalStateException();
+                    }
+                }
+
+                if (removeCursor.isEnd()) {
+                    removeCursor.children.remove('\u0000');
+                    if (removeCursor.children.size() == 0) {
+                        do {
+                            removeCursor = removeCursor.parent;
+                            removeCursor.children.remove(removingState.charAt(removingState.length() - 1));
+                            removingState = removingState.substring(0, removingState.length() - 1);
+                        } while (removeCursor.children.size() == 0);
+                    }
+                } else {
+                    throw new IllegalStateException();
+                }
+                size --;
+                returnedCounter --;
+            }
         }
     }
 }
