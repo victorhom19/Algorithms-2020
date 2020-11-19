@@ -95,7 +95,21 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @Override
     public boolean remove(Object o) {
-        return super.remove(o);
+        int index = o.hashCode() % capacity;
+        Object current = storage[index];
+        while (current != null) {
+            if (current.equals(o)) {
+                while (storage[index] != null) {
+                    storage[index] = storage[index + 1];
+                    index ++;
+                }
+                size --;
+                return true;
+            }
+            index ++;
+            current = storage[index];
+        }
+        return false;
     }
 
     /**
@@ -111,7 +125,34 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new OpenAddressingSetIterator();
+    }
+
+    public class OpenAddressingSetIterator implements Iterator {
+
+        int cursor = -1;
+        int returnedCounter = 0;
+
+        @Override
+        public boolean hasNext() {
+            return returnedCounter < OpenAddressingSet.this.size();
+        }
+
+        @Override
+        public Object next() {
+            do {
+                cursor ++;
+                if (cursor == storage.length) {
+                    throw new IllegalStateException();
+                }
+            } while (storage[cursor] == null);
+            returnedCounter ++;
+            return storage[cursor];
+        }
+
+        @Override
+        public void remove() {
+            throw new NotImplementedError();
+        }
     }
 }
