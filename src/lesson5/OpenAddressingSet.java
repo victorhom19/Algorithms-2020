@@ -17,6 +17,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
 
     private int size = 0;
 
+
     private int startingIndex(Object element) {
         return element.hashCode() & (0x7FFFFFFF >> (31 - bits));
     }
@@ -54,10 +55,10 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
 
     /**
      * Добавление элемента в таблицу.
-     *
+     * <p>
      * Не делает ничего и возвращает false, если такой же элемент уже есть в таблице.
      * В противном случае вставляет элемент в таблицу и возвращает true.
-     *
+     * <p>
      * Бросает исключение (IllegalStateException) в случае переполнения таблицы.
      * Обычно Set не предполагает ограничения на размер и подобных контрактов,
      * но в данном случае это было введено для упрощения кода.
@@ -84,13 +85,13 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
 
     /**
      * Удаление элемента из таблицы
-     *
+     * <p>
      * Если элемент есть в таблица, функция удаляет его из дерева и возвращает true.
      * В ином случае функция оставляет множество нетронутым и возвращает false.
      * Высота дерева не должна увеличиться в результате удаления.
-     *
+     * <p>
      * Спецификация: {@link Set#remove(Object)} (Ctrl+Click по remove)
-     *
+     * <p>
      * Средняя
      */
     @Override
@@ -101,12 +102,12 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
             if (current.equals(o)) {
                 while (storage[index] != null) {
                     storage[index] = storage[index + 1];
-                    index ++;
+                    index++;
                 }
-                size --;
+                size--;
                 return true;
             }
-            index ++;
+            index++;
             current = storage[index];
         }
         return false;
@@ -114,18 +115,22 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
 
     /**
      * Создание итератора для обхода таблицы
-     *
+     * <p>
      * Не забываем, что итератор должен поддерживать функции next(), hasNext(),
      * и опционально функцию remove()
-     *
+     * <p>
      * Спецификация: {@link Iterator} (Ctrl+Click по Iterator)
-     *
+     * <p>
      * Средняя (сложная, если поддержан и remove тоже)
      */
     @NotNull
     @Override
     public Iterator<T> iterator() {
         return new OpenAddressingSetIterator();
+    }
+
+    private enum Mark {
+        REMOVED
     }
 
     public class OpenAddressingSetIterator implements Iterator {
@@ -135,24 +140,38 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
 
         @Override
         public boolean hasNext() {
+            //Трудоемкость O(1)
+            //Ресурсоемкость O(1)
+
             return returnedCounter < OpenAddressingSet.this.size();
         }
 
         @Override
         public Object next() {
+            //Трудоемкость O(N)
+            //Ресурсоемкость O(1)
+
             do {
-                cursor ++;
+                cursor++;
                 if (cursor == storage.length) {
                     throw new IllegalStateException();
                 }
-            } while (storage[cursor] == null);
-            returnedCounter ++;
+            } while (storage[cursor] == null || storage[cursor] == Mark.REMOVED);
+            returnedCounter++;
             return storage[cursor];
         }
 
+
         @Override
         public void remove() {
-            throw new NotImplementedError();
+            //Трудоемкость O(1)
+            //Ресурсоемкость O(1)
+
+            if (returnedCounter < 1) throw new IllegalStateException();
+            storage[cursor] = Mark.REMOVED;
+            size--;
+            returnedCounter--;
+            cursor--;
         }
     }
 }

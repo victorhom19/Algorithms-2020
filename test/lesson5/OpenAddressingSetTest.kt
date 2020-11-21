@@ -32,4 +32,12 @@ class OpenAddressingSetTest : AbstractOpenAddressingSetTest() {
     fun iteratorRemoveTestJava() {
         doIteratorRemoveTest()
     }
+
+    @Test
+    fun myTests() {
+        doMyIteratorTest()
+        doMyIteratorRemoveTest()
+        doMyRemoveTest()
+    }
+
 }

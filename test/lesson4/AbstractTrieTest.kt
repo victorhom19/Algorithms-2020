@@ -173,4 +173,45 @@ abstract class AbstractTrieTest {
         }
     }
 
+    protected fun doMyRemoveTest() {
+        val controlSet = mutableSetOf<String>("boolean", "bob", "cinema", "c", "argument", "argentina", "apple",
+                                            "application", "cin", "google")
+        var toRemove = "c"
+        val trieSet = create()
+        for (element in controlSet) { trieSet += element }
+        controlSet.remove(toRemove)
+        val iterator = trieSet.iterator()
+        assertFailsWith<IllegalStateException> { iterator.remove() }
+        var counter = trieSet.size
+        while (iterator.hasNext()) {
+            val element = iterator.next()
+            counter--
+            if (element == toRemove) {
+                iterator.remove()
+                assertFailsWith<IllegalStateException> {
+                    iterator.remove()
+                }
+            }
+        }
+        assertEquals(0, counter)
+        assertEquals(controlSet.size, trieSet.size)
+        for (element in controlSet) { assertTrue(trieSet.contains(element)) }
+        for (element in trieSet) { assertTrue(controlSet.contains(element)) }
+    }
+
+    protected fun doMyIteratorTest() {
+        val controlSet = mutableSetOf<String>("boolean", "bob", "cinema", "c", "argument", "argentina", "apple",
+                                            "application", "cin", "google")
+        val trieSet = create()
+        assertFalse(trieSet.iterator().hasNext())
+        for (element in controlSet) { trieSet += element }
+        val iterator1 = trieSet.iterator()
+        val iterator2 = trieSet.iterator()
+        while (iterator1.hasNext()) { assertEquals(iterator2.next(), iterator1.next()) }
+        val trieIter = trieSet.iterator()
+        while (trieIter.hasNext()) { controlSet.remove(trieIter.next()) }
+        assertTrue(controlSet.isEmpty())
+        assertFailsWith<IllegalStateException> { trieIter.next() }
+    }
+
 }

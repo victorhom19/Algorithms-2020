@@ -119,6 +119,9 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
         @Override
         public boolean hasNext() {
+            //Трудоемкость O(1)
+            //Ресурсоемкость O(1)
+
             if (Trie.this.size() == 0) {
                 return false;
             } else {
@@ -129,6 +132,9 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
         @Override
         public String next() {
+            //Трудоемкость O(N)
+            //Ресурсоемкость O(N)
+
             if (!hasNext()) throw new IllegalStateException();
             while (true) {
                 Set<Character> keyToIterate = cursor.children.keySet().stream()
@@ -171,6 +177,9 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
         @Override
         public void remove() {
+            //Трудоемкость O(N)
+            //Ресурсоемкость O(N)
+
             if (iterated.size() == 0) {
                 throw new IllegalStateException();
             } else {

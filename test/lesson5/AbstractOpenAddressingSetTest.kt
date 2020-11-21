@@ -176,4 +176,64 @@ abstract class AbstractOpenAddressingSetTest {
             println("All clear!")
         }
     }
+
+    protected fun doMyRemoveTest() {
+        val controlSet = mutableSetOf<String>("world", "planet", "mountain", "ocean", "tree", "space", "human", "atmosphere")
+        val openAddressingSet = create<String>(8)
+        var toRemove = "human"
+        for (element in controlSet) {
+            openAddressingSet += element
+        }
+        val expectedSize = openAddressingSet.size - 1
+        assertTrue(openAddressingSet.remove(toRemove) )
+        assertFalse(toRemove in openAddressingSet)
+        assertEquals(expectedSize, openAddressingSet.size)
+        assertFalse(openAddressingSet.remove(toRemove))
+        assertEquals(expectedSize, openAddressingSet.size)
+
+    }
+
+    protected fun doMyIteratorTest() {
+        val controlSet = mutableSetOf<String>("world", "planet", "mountain", "ocean", "tree", "space", "human", "atmosphere")
+        val openAddressingSet = create<String>(8)
+        assertFalse(openAddressingSet.iterator().hasNext())
+        for (element in controlSet) {
+            openAddressingSet += element
+        }
+        val iterator1 = openAddressingSet.iterator()
+        val iterator2 = openAddressingSet.iterator()
+        while (iterator1.hasNext()) { assertEquals(iterator2.next(), iterator1.next()) }
+        val openAddressingSetIter = openAddressingSet.iterator()
+        while (openAddressingSetIter.hasNext()) { controlSet.remove(openAddressingSetIter.next()) }
+        assertTrue(controlSet.isEmpty())
+        assertFailsWith<IllegalStateException> { openAddressingSetIter.next() }
+    }
+
+    protected fun doMyIteratorRemoveTest() {
+        val controlSet = mutableSetOf<String>("world", "planet", "mountain", "ocean", "tree", "space", "human", "atmosphere")
+        var toRemove = "human"
+        val openAddressingSet = create<String>(8)
+        for (element in controlSet) {
+            openAddressingSet += element
+        }
+        controlSet.remove(toRemove)
+        val iterator = openAddressingSet.iterator()
+        assertFailsWith<IllegalStateException>() { iterator.remove() }
+        var counter = openAddressingSet.size
+        while (iterator.hasNext()) {
+            val element = iterator.next()
+            counter--
+            if (element == toRemove) {
+                iterator.remove()
+            }
+        }
+        assertEquals(0, counter)
+        assertEquals(controlSet.size, openAddressingSet.size)
+        for (element in controlSet) {
+            assertTrue(openAddressingSet.contains(element))
+        }
+        for (element in openAddressingSet) {
+            assertTrue(controlSet.contains(element))
+        }
+    }
 }
