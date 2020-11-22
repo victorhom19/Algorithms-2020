@@ -121,6 +121,63 @@ abstract class AbstractGraphTests {
         }.build()
         val loop3 = graph3.findEulerLoop()
         loop3.assert(shouldExist = false, graph = graph3)
+
+        //My graph:
+        //
+        //       W -- X
+        //       |    |
+        //  A -- V -- U -- T -- M
+        //  |    |    |         |
+        //  B -- C -- F -- G -- H ------- L
+        //       |    |         |         |
+        //       D -- E         I -- J -- K
+
+
+        val myGraph = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            val e = addVertex("E")
+            val f = addVertex("F")
+            val g = addVertex("G")
+            val h = addVertex("H")
+            val i = addVertex("I")
+            val j = addVertex("J")
+            val k = addVertex("K")
+            val l = addVertex("L")
+            val m = addVertex("M")
+            val t = addVertex("T")
+            val u = addVertex("U")
+            val v = addVertex("V")
+            val w = addVertex("W")
+            val x = addVertex("X")
+            addConnection(a, b)
+            addConnection(a, v)
+            addConnection(b, c)
+            addConnection(c, d)
+            addConnection(c, f)
+            addConnection(c, v)
+            addConnection(d, e)
+            addConnection(e, f)
+            addConnection(f, u)
+            addConnection(f, g)
+            addConnection(g, h)
+            addConnection(h, i)
+            addConnection(h, l)
+            addConnection(h, m)
+            addConnection(i, j)
+            addConnection(j, k)
+            addConnection(k, l)
+            addConnection(m, t)
+            addConnection(t, u)
+            addConnection(u, x)
+            addConnection(u, v)
+            addConnection(x, w)
+            addConnection(w, v)
+        }.build()
+        val myLoop = myGraph.findEulerLoop()
+        myLoop.assert(shouldExist = true, graph = myGraph)
     }
 
     fun minimumSpanningTree(minimumSpanningTree: Graph.() -> Graph) {

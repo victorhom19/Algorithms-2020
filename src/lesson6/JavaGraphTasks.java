@@ -2,8 +2,7 @@ package lesson6;
 
 import kotlin.NotImplementedError;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class JavaGraphTasks {
@@ -33,9 +32,91 @@ public class JavaGraphTasks {
      * Справка: Эйлеров цикл -- это цикл, проходящий через все рёбра
      * связного графа ровно по одному разу
      */
-    public static List<Graph.Edge> findEulerLoop(Graph graph) {
-        throw new NotImplementedError();
+
+    private static boolean isEulerGraph(Graph graph) {
+        if (graph.getVertices().size() == 0) return false;
+        int zeroCounter = 0;
+        HashMap<Graph.Vertex, Integer> vertexDegree = new HashMap<>();
+        for (Graph.Vertex vertex : graph.getVertices()) {
+            vertexDegree.put(vertex, 0);
+        }
+        for (Graph.Edge edge : graph.getEdges()) {
+            vertexDegree.put(edge.getBegin(), vertexDegree.get(edge.getBegin()) + 1);
+            vertexDegree.put(edge.getEnd(), vertexDegree.get(edge.getEnd()) + 1);
+        }
+        for (Graph.Vertex vertex : graph.getVertices()) {
+            if (vertexDegree.get(vertex) % 2 != 0) {
+                return false;
+            } else if (vertexDegree.get(vertex) == 0) {
+                zeroCounter ++;
+            }
+        }
+        return zeroCounter < graph.getVertices().size();
     }
+
+    private static void mergeCircuits(int id, List<List<Graph.Edge>> circuits, List<List<Graph.Vertex>> circuitsPaths, List<Graph.Edge> mergeResult) {
+        List<Graph.Edge> circuit = circuits.get(id);
+        for (int k = 0; k < circuit.size(); k ++) {
+            for (int i = 0; i < circuitsPaths.size(); i ++) {
+                if (i != id && circuitsPaths.get(i).get(0) == circuitsPaths.get(id).get(k)) {
+                    mergeCircuits(i, circuits, circuitsPaths, mergeResult);
+                }
+            }
+            mergeResult.add(circuit.get(k));
+        }
+    }
+
+    public static List<Graph.Edge> findEulerLoop(Graph graph) {
+        // Трудоемкость O(N^2)
+        // Ресурсоемкость O (N)
+
+
+        List<Graph.Edge> traversed = new ArrayList<>();
+        List<List<Graph.Edge>> circuits = new ArrayList<>();
+        List<List<Graph.Vertex>> circuitsPaths = new ArrayList<>();
+
+        if (isEulerGraph(graph)) {
+            for (Graph.Edge startingEdge : graph.getEdges()) {
+                if (!(traversed.contains(startingEdge))) {
+                    List<Graph.Edge> lastRun = new ArrayList<>();
+                    List<Graph.Vertex> visited = new ArrayList<>();
+                    Graph.Edge cursor = startingEdge;
+                    visited.add(cursor.getBegin());
+                    visited.add(cursor.getEnd());
+                    do {
+                        lastRun.add(cursor);
+                        for (Graph.Edge edge : graph.getEdges()) {
+                            if (!(traversed.contains(edge) || lastRun.contains(edge))) {
+                                if (edge.getBegin().equals(visited.get(visited.size() - 1))) {
+                                    visited.add(edge.getEnd());
+                                    cursor = edge;
+                                    break;
+                                } else if (edge.getEnd().equals(visited.get(visited.size() - 1))) {
+                                    visited.add(edge.getBegin());
+                                    cursor = edge;
+                                    break;
+                                }
+                            }
+                        }
+                    } while (!(visited.get(0).equals(visited.get(visited.size() - 1))));
+                    lastRun.add(cursor);
+
+                    traversed.addAll(lastRun);
+                    circuits.add(lastRun);
+                    circuitsPaths.add(visited);
+
+                }
+            }
+        }
+
+        List<Graph.Edge> result = new ArrayList<>();
+        if (circuits.size() > 0) {
+            mergeCircuits(0, circuits, circuitsPaths, result);
+        }
+        return result;
+    }
+
+
 
     /**
      * Минимальное остовное дерево.
