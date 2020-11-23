@@ -238,6 +238,72 @@ abstract class AbstractGraphTests {
         val tree3 = graph3.minimumSpanningTree()
         assertEquals(4, tree3.edges.size)
         assertEquals(4, tree3.findBridges().size)
+        //My graph:
+        //
+        //       W -- X
+        //       |    |
+        //  A -- V -- U -- T -- M
+        //  |    |    |         |
+        //  B -- C -- F -- G -- H ------- L
+        //       |    |         |         |
+        //       D -- E         I -- J -- K
+
+        // Expected Minimum Spanning Tree:
+        //       W    X
+        //       |    |
+        //  A -- V -- U -- T -- M
+        //  |
+        //  B -- C -- F -- G -- H         L
+        //       |    |         |         |
+        //       D    E         I -- J -- K
+
+
+        val myGraph = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            val e = addVertex("E")
+            val f = addVertex("F")
+            val g = addVertex("G")
+            val h = addVertex("H")
+            val i = addVertex("I")
+            val j = addVertex("J")
+            val k = addVertex("K")
+            val l = addVertex("L")
+            val m = addVertex("M")
+            val t = addVertex("T")
+            val u = addVertex("U")
+            val v = addVertex("V")
+            val w = addVertex("W")
+            val x = addVertex("X")
+            addConnection(a, b)
+            addConnection(a, v)
+            addConnection(b, c)
+            addConnection(c, d)
+            addConnection(c, f)
+            addConnection(c, v)
+            addConnection(d, e)
+            addConnection(e, f)
+            addConnection(f, u)
+            addConnection(f, g)
+            addConnection(g, h)
+            addConnection(h, i)
+            addConnection(h, l)
+            addConnection(h, m)
+            addConnection(i, j)
+            addConnection(j, k)
+            addConnection(k, l)
+            addConnection(m, t)
+            addConnection(t, u)
+            addConnection(u, x)
+            addConnection(u, v)
+            addConnection(x, w)
+            addConnection(w, v)
+        }.build()
+        val myTree = myGraph.minimumSpanningTree()
+        assertEquals(17, myTree.edges.size)
+        assertEquals(17, myTree.findBridges().size)
     }
 
     fun largestIndependentVertexSet(largestIndependentVertexSet: Graph.() -> Set<Graph.Vertex>) {
@@ -314,6 +380,54 @@ abstract class AbstractGraphTests {
         assertEquals(
             setOf(cross["A"], cross["B"], cross["C"], cross["D"]),
             cross.largestIndependentVertexSet()
+        )
+        val myGraph = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            val e = addVertex("E")
+            val f = addVertex("F")
+            val g = addVertex("G")
+            val h = addVertex("H")
+            val i = addVertex("I")
+            val j = addVertex("J")
+            val k = addVertex("K")
+            val l = addVertex("L")
+            val m = addVertex("M")
+            val n = addVertex("N")
+            val o = addVertex("O")
+            val p = addVertex("P")
+            val q = addVertex("Q")
+            val r = addVertex("R")
+            val s = addVertex("S")
+            val t = addVertex("T")
+            addConnection(a, b)
+            addConnection(b, c)
+            addConnection(b, i)
+            addConnection(i, j)
+            addConnection(c, f)
+            addConnection(c, f)
+            addConnection(c, d)
+            addConnection(c, h)
+            addConnection(f, g)
+            addConnection(d, e)
+            addConnection(h, k)
+            addConnection(k, l)
+            addConnection(k, m)
+            addConnection(k, n)
+            addConnection(l, s)
+            addConnection(s, t)
+            addConnection(m, q)
+            addConnection(m, r)
+            addConnection(n, o)
+            addConnection(n, p)
+
+        }.build()
+        assertEquals(
+            setOf(myGraph["A"], myGraph["C"], myGraph["I"], myGraph["G"], myGraph["E"], myGraph["K"],
+                  myGraph["S"], myGraph["Q"], myGraph["R"], myGraph["O"], myGraph["P"]),
+            myGraph.largestIndependentVertexSet()
         )
     }
 

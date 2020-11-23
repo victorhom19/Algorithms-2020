@@ -1,8 +1,10 @@
 package lesson6;
 
 import kotlin.NotImplementedError;
+import lesson6.impl.GraphBuilder;
 
 import java.util.*;
+import java.util.stream.Collector;
 
 @SuppressWarnings("unused")
 public class JavaGraphTasks {
@@ -48,7 +50,7 @@ public class JavaGraphTasks {
             if (vertexDegree.get(vertex) % 2 != 0) {
                 return false;
             } else if (vertexDegree.get(vertex) == 0) {
-                zeroCounter ++;
+                zeroCounter++;
             }
         }
         return zeroCounter < graph.getVertices().size();
@@ -56,8 +58,8 @@ public class JavaGraphTasks {
 
     private static void mergeCircuits(int id, List<List<Graph.Edge>> circuits, List<List<Graph.Vertex>> circuitsPaths, List<Graph.Edge> mergeResult) {
         List<Graph.Edge> circuit = circuits.get(id);
-        for (int k = 0; k < circuit.size(); k ++) {
-            for (int i = 0; i < circuitsPaths.size(); i ++) {
+        for (int k = 0; k < circuit.size(); k++) {
+            for (int i = 0; i < circuitsPaths.size(); i++) {
                 if (i != id && circuitsPaths.get(i).get(0) == circuitsPaths.get(id).get(k)) {
                     mergeCircuits(i, circuits, circuitsPaths, mergeResult);
                 }
@@ -67,9 +69,8 @@ public class JavaGraphTasks {
     }
 
     public static List<Graph.Edge> findEulerLoop(Graph graph) {
-        // Трудоемкость O(N^2)
-        // Ресурсоемкость O (N)
-
+        // Трудоемкость O(N)
+        // Ресурсоемкость O(N)
 
         List<Graph.Edge> traversed = new ArrayList<>();
         List<List<Graph.Edge>> circuits = new ArrayList<>();
@@ -117,7 +118,6 @@ public class JavaGraphTasks {
     }
 
 
-
     /**
      * Минимальное остовное дерево.
      * Средняя
@@ -147,7 +147,39 @@ public class JavaGraphTasks {
      * J ------------ K
      */
     public static Graph minimumSpanningTree(Graph graph) {
-        throw new NotImplementedError();
+        //Трудоемкость O(N)
+        //Ресурсоемкость O(N)
+
+        GraphBuilder result = new GraphBuilder();
+        if (graph.getEdges().size() != 0 && graph.getVertices().size() > 1) {
+            List<Graph.Vertex> addedVertices = new ArrayList<>(Collections.singletonList(graph.getVertices().iterator().next()));
+            List<Graph.Edge> traversedEdges = new ArrayList<>();
+
+            while (addedVertices.size() != graph.getVertices().size()) {
+                List<Graph.Vertex> copy = new ArrayList<>(addedVertices);
+                for (Graph.Vertex vertex : copy) {
+                    for (Graph.Edge edge : graph.getEdges()) {
+                        if (edge.getEnd() == vertex && !(addedVertices.contains(edge.getBegin()))) {
+                            addedVertices.add(edge.getBegin());
+                            traversedEdges.add(edge);
+                        } else if (edge.getBegin() == vertex && !(addedVertices.contains(edge.getEnd()))) {
+                            addedVertices.add(edge.getEnd());
+                            traversedEdges.add(edge);
+                        }
+                    }
+                }
+
+                for (Graph.Vertex vertex : addedVertices) {
+                    result.addVertex(vertex.getName());
+                }
+                for (Graph.Edge edge : traversedEdges) {
+                    result.addConnection(edge.getBegin(), edge.getEnd(), 0);
+                }
+            }
+
+        }
+
+        return result.build();
     }
 
     /**
@@ -177,8 +209,32 @@ public class JavaGraphTasks {
      * Эта задача может быть зачтена за пятый и шестой урок одновременно
      */
     public static Set<Graph.Vertex> largestIndependentVertexSet(Graph graph) {
-        throw new NotImplementedError();
+        //Трудоемкость O(N)
+        //Ресурсоемкость O(N)
+
+
+        Set<Graph.Vertex> result = new TreeSet<>(Comparator.comparing((Graph.Vertex::getName)));
+        if (graph.getVertices().size() > 0) {
+            List<Node> roots = new ArrayList<>();
+            List<Graph.Vertex> collectedVertices = new ArrayList<>();
+            Iterator<Graph.Vertex> vertexIterator = graph.getVertices().iterator();
+            for (Graph.Vertex root : graph.getVertices()) {
+                if (!(collectedVertices.contains(root))) {
+                    Node rootNode = new Node(root, graph);
+                    roots.add(rootNode);
+                    collectedVertices.addAll(rootNode.getCollectedVertices());
+                }
+            }
+            for (Node root : roots) {
+                Node.findWeights(root);
+                Node.findTree(root, result);
+            }
+        }
+
+        return result;
     }
+
+
 
     /**
      * Наидлиннейший простой путь.

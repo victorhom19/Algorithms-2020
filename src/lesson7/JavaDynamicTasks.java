@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class JavaDynamicTasks {
+
     /**
      * Наибольшая общая подпоследовательность.
      * Средняя
@@ -28,7 +29,7 @@ public class JavaDynamicTasks {
     public static String longestCommonSubSequence(String first, String second) {
         String result = "";
         int[][] lengths = new int[first.length() + 1][second.length() + 1];
-        
+
         //Заполняем таблицу
         for (int j = 0; j <= second.length(); j ++) {
             for (int i= 0; i <= first.length(); i ++) {
