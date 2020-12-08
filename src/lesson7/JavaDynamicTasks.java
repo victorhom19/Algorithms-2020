@@ -12,6 +12,18 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class JavaDynamicTasks {
 
+    public static void main(String[] args) {
+        Random random = new Random();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < 20; i ++) {
+            for (int j = 0; j < 30; j ++) {
+                stringBuilder.append(random.nextInt(10)).append(" ");
+            }
+        stringBuilder.append(System.lineSeparator());
+        }
+        System.out.println(stringBuilder.toString());
+    }
+
     /**
      * Наибольшая общая подпоследовательность.
      * Средняя

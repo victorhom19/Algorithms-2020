@@ -68,7 +68,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null) {
+        while (current != null && current != Mark.REMOVED) {
             if (current.equals(t)) {
                 return false;
             }
@@ -96,14 +96,11 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @Override
     public boolean remove(Object o) {
-        int index = o.hashCode() % capacity;
+        int index = startingIndex(o);
         Object current = storage[index];
         while (current != null) {
             if (current.equals(o)) {
-                while (storage[index] != null) {
-                    storage[index] = storage[index + 1];
-                    index++;
-                }
+                storage[index] = Mark.REMOVED;
                 size--;
                 return true;
             }
